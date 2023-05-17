@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -21,10 +22,11 @@ type Node struct {
 
 // Option 遍历选项
 type Option struct {
-	RootPath   []string `yaml:"rootPath"`   // 目标根目录
-	SubFlag    bool     `yaml:"subFlag"`    // 遍历子目录标志 true: 遍历 false: 不遍历
-	IgnorePath []string `yaml:"ignorePath"` // 忽略目录
-	IgnoreFile []string `yaml:"ignoreFile"` // 忽略文件
+	RootPath        []string `yaml:"rootPath"`        // 目标根目录
+	SubFlag         bool     `yaml:"subFlag"`         // 遍历子目录标志 true: 遍历 false: 不遍历
+	IgnorePath      []string `yaml:"ignorePath"`      // 忽略目录
+	IgnoreFile      []string `yaml:"ignoreFile"`      // 忽略文件
+	TargetExtension []string `yaml:"targetExtension"` // 指定文件后缀
 }
 
 // 当前再循环的Dir路径
@@ -99,7 +101,7 @@ func explorerRecursive(node *Node, option *Option) {
 
 		// 目录或文件名（不包含后缀）
 		child.ShowName = strings.TrimSuffix(f.Name(), path.Ext(f.Name()))
-		if strings.Index(child.ShowName, "@") != -1 {
+		if strings.Contains(child.ShowName, "@") {
 			child.ShowName = child.ShowName[strings.Index(child.ShowName, "@")+1:]
 		}
 		// 是否为目录
@@ -116,8 +118,8 @@ func explorerRecursive(node *Node, option *Option) {
 				}
 			}
 		} else { // 文件
-			// 非忽略文件，添加到结果中
-			if !IsInSlice(option.IgnoreFile, f.Name()) {
+			// 非忽略文件并且指定文件后缀名，添加到结果中
+			if !IsInSlice(option.IgnoreFile, f.Name()) && IsInSlice(option.TargetExtension, filepath.Ext(f.Name())) {
 				node.Children = append(node.Children, &child)
 			}
 		}

@@ -161,6 +161,7 @@ func getNavs(activeNav string) ([]map[string]interface{}, utils.Node) {
 	option.SubFlag = true
 	option.IgnorePath = IgnorePath
 	option.IgnoreFile = IgnoreFile
+	option.TargetExtension = []string{".md"}
 	tree, _ := utils.Explorer(option)
 
 	navs := make([]map[string]interface{}, 0)
